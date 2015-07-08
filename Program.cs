@@ -2,10 +2,6 @@
 //#undef EXPERIMENT
 
 using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace CrossLogicSolver
 {
@@ -22,17 +18,12 @@ namespace CrossLogicSolver
                 {
                     Console.WriteLine(string.Format("CrossLogic Solver - (c) {0}, by Taiyo Kato", DateTime.Today.Year));
                     Console.Read();
-                    System.Environment.Exit(0); //exit
+                    return;
+                    //System.Environment.Exit(0); //exit
                 }
                 if (!Reader.ReadFromFile(args[0])) return;
-#if (EXPERIMENT)
-                new Experimental(true);
-#else
                 new Solver(true);
-#endif
-
             }
-            return;
         }
         
 
