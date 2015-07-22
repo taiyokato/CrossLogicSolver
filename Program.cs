@@ -7,6 +7,10 @@ namespace CrossLogicSolver
 {
     class Program
     {
+        /// <summary>
+        /// Program entry point
+        /// </summary>
+        /// <param name="args"></param>
         [STAThread]
         static void Main(string[] args)
         {

@@ -34,28 +34,7 @@ namespace CrossLogicSolver
                 FullGridWidth = Reader.GridSize;
                 Vertical_Input = Reader.Vertical_Input;
                 Horizontal_Input = Reader.Horizontal_Input;
-                Solve();
-                return;
             }
-#if (false)
-            
-
-        //Get the size first, then initialize Grid
-            Console.WriteLine("Size is limited to 10x10");
-
-
-            Console.WriteLine("Input Each line\nEnter empty values as x\nSeparate values with a space: ");
-            Console.WriteLine("Input \"resize\" to re-set grid size");
-            //Console.WriteLine("Input \"redo\" to re-enter line");
-            if (ReadLines()) { Console.Clear(); goto SETSIZE; } //if ReadLines return true, reset grid size
-            Console.WriteLine();
-            Console.WriteLine("Input values are: ");
-            PrintAll();
-            Console.Read();
-
-            Solve(skipprint);
-            
-#endif
             Solve();
 
 
@@ -66,23 +45,26 @@ namespace CrossLogicSolver
             bool hidecross = true;
             bool usecolor = true;
             //int counter = 0;
-            Initialize();
-            PrintAll();
+            Initialize(); //Setup Grid + Backupgrid
+            PrintAll(); //Show starting input
 
+            //Copy whatever is in the main grid to backup grid 
             CopyGrid(Grid, ref BackupGrid);
 
             System.Diagnostics.Stopwatch stp = new System.Diagnostics.Stopwatch();
-            stp.Start();
+            stp.Start(); //start stopwatch
             do
             {
                 Advanced();
+
+                
                 if (GridSame(ref Grid, ref BackupGrid)) break;
                 PrintAll(usecolor, hidecross);
                 CopyGrid(Grid, ref BackupGrid);
                 //counter++;
             } while (true);
             stp.Stop();
-            Console.WriteLine(stp.ElapsedTicks);
+            Console.WriteLine(stp.Elapsed);
             Console.Read();
         }
 
@@ -125,6 +107,9 @@ namespace CrossLogicSolver
 
         }
 
+        /// <summary>
+        /// Main algorithm in here
+        /// </summary>
         public void Advanced()
         {
             int[] tmp;
@@ -159,46 +144,7 @@ namespace CrossLogicSolver
 #endif
             }
         }
-        public void Advanced(int hori, int verti)
-        {
-            int[] tmp;
-            if (hori == 1)
-            {
-                //Horizontal
-                for (int y = 0; y < FullGridWidth; y++)
-                {
-                    tmp = AdvGetOverLappingArea3(Grid[y], Horizontal_Input[y]);
-                    if (tmp == null) continue;
-                    for (int i = 0; i < FullGridWidth; i++)
-                    {
-                        //if (tmp[i] != 0) System.Diagnostics.Debugger.Break();
-                        Grid[y][i] = tmp[i];
-                    }
-#if (DEBUG)
-                    PrintAll();
-#endif
-                }
-            }
-
-            if (verti == 1)
-            {
-                //Vertical
-                for (int x = 0; x < FullGridWidth; x++)
-                {
-                    tmp = AdvGetOverLappingArea3(GetVerticalGrid(x), Vertical_Input[x]);
-                    if (tmp == null) continue;
-                    for (int i = 0; i < FullGridWidth; i++)
-                    {
-                        Grid[i][x] = tmp[i];
-                    }
-#if (DEBUG)
-                    PrintAll();
-#endif
-                }
-            }
-        }
-
-
+        
         private int[] GetVerticalGrid(int col)
         {
             int[] ret = new int[FullGridWidth];
@@ -323,6 +269,10 @@ namespace CrossLogicSolver
 
         }
 
+
+        /// <summary>
+        /// Function which prints out for manual checking
+        /// </summary>
         private static void VisualCheck(int[][] trials)
         {
             foreach (int[] item in trials)
@@ -332,6 +282,11 @@ namespace CrossLogicSolver
             }
         }
 
+        /// <summary>
+        /// Flatten arrays
+        /// </summary>
+        /// <param name="arr"></param>
+        /// <returns></returns>
         public static int[] MergeSame(params int[][] arr)
         {
 
@@ -359,112 +314,12 @@ namespace CrossLogicSolver
             return sum;
         }
 #endregion
-
-#region Count Blocks
-        public void CheckHVInputCount()
-        {
-
-
-        }
-        public int FilledBlockVertical(int x)
-        {
-            int i = 0;
-            for (int k = 0; k < FullGridWidth; k++)
-            {
-                if (Grid[k][x] == 1) i++;
-            }
-            return i;
-        }
-        public int FilledBlockHorizontal(int y)
-        {
-            int i = 0;
-            for (int k = 0; k < FullGridWidth; k++)
-            {
-                if (Grid[y][k] == 1) i++;
-            }
-            return i;
-        }
-
-        public int[] AdjacentFilledBlockVertical(int x)
-        {
-            Queue<int> track = new Queue<int>();
-            int count = 0;
-            for (int k = 0; k < FullGridWidth; k++)
-            {
-                if (Grid[k][x] == 1) count++;
-                if (count != 0 && Grid[k][x] != 1)
-                {
-                    track.Enqueue(count);
-                    count = 0;
-                }
-            }
-            if (count != 0)
-            {
-                track.Enqueue(count);
-            }
-
-            return track.ToArray();
-        }
-        public int[] AdjacentFilledBlockHorizontal(int y)
-        {
-            Queue<int> track = new Queue<int>();
-            int count = 0;
-            for (int k = 0; k < FullGridWidth; k++)
-            {
-                if (Grid[y][k] == 1) count++;
-                if (count != 0 && Grid[y][k] != 1)
-                {
-                    track.Enqueue(count);
-                    count = 0;
-                }
-            }
-            if (count != 0)
-            {
-                track.Enqueue(count);
-            }
-            return track.ToArray();
-        }
-
-        public int[] SegregatedSpaceHorizontal(int y)
-        {
-            Queue<int> queue = new Queue<int>();
-            int c = 0;
-            for (int i = 0; i < FullGridWidth; i++)
-            {
-                if (Grid[y][i] == 2)
-                {
-                    if (c != 0)
-                    {
-                        queue.Enqueue(c);
-                        c = 0;
-                    }
-                }
-                else c++;
-            }
-            return queue.ToArray();
-        }
-        public int[] SegregatedSpaceVertical(int x)
-        {
-            Queue<int> queue = new Queue<int>();
-            int c = 0;
-            for (int i = 0; i < FullGridWidth; i++)
-            {
-                if (Grid[i][x] == 2)
-                {
-                    if (c != 0)
-                    {
-                        queue.Enqueue(c);
-                        c = 0;
-                    }
-                }
-                else c++;
-            }
-            return queue.ToArray();
-        }
-        #endregion
+        
+        
         public void CrossOutCheck()
         {
             //REDO THIS
+            throw new NotImplementedException();
         }
 
         #region Adjacent
@@ -680,13 +535,6 @@ namespace CrossLogicSolver
 
     public static class SolverHelper
     {
-        public static void Populate<T>(this T[] arr, T value)
-        {
-            for (int i = 0; i < arr.Length; i++)
-            {
-                arr[i] = value;
-            }
-        }
         public static void Populate<T>(this T[] arr, int start, int end, T value)
         {
             for (int i = Math.Max(0, start); i < Math.Min(end, arr.Length); i++)
