@@ -191,43 +191,23 @@ namespace CrossLogicSolver
                 {
                     ret[index++] = 2; //fill in with x
                 }
-
-                trials.Add(ret.ToArray());                
-                //Debug.WriteLine(string.Join(",",ret.Select(x=>x.ToString())));
                 
-                if (return_index == FullGridWidth) 
+                trials.Add(ret.ToArray());
+                padsum = SumInputs(padspaces); //count it once
+                while (padsum +inpsum >= FullGridWidth) //check if the last value has reached the end of arr
                 {
-                    //continuous shift down
-                    do
-                    {
-                        RETRY:
-                        if (padspaces[padindex] == 1)
-                        {
-                            padindex--;
-                            if (padindex < 0) break; //break doesn't get out fully
-                            padspaces[padindex] = 1;
-                        }
-                        else padspaces[padindex] = 1; //reset value
-                        padindex--;
-                        if (padindex < 0) goto JUMP; //break doesn't get out fully
-                        padspaces[padindex]++;
-                        padsum = SumInputs(padspaces);
-                        if (padsum + inpsum > FullGridWidth) goto RETRY;
-                    } while (padspaces[padindex] == 1);
+                    padsum -= padspaces[padindex] - 1; //subtract the resetting amount
+                    padspaces[padindex--] = 1; //reset the top padindex and shift down the index
 
-                    padsum = SumInputs(padspaces);
-                    //if (padsum + inpsum > FullGridWidth) break;
-
-                    if (padsum + inpsum > FullGridWidth) goto JUMP;
-
-                    padindex = padspaces.Length - 1; //reset value
-
+                    if (padindex < 0) goto JUMP; //quit if shifted index is OOB
                 }
-                else padspaces[padindex]++;
+                
+                padspaces[padindex]++;
+                padindex = padspaces.Length - 1; //reset
                 return_index = index = 0;
 
             }
-            #endregion
+#endregion
             JUMP:
             //debug check
 #if (DEBUG)
@@ -254,7 +234,8 @@ namespace CrossLogicSolver
                 }
                 t++;
             }
-            #endregion
+
+#endregion
 #if (DEBUG)
             System.Diagnostics.Debug.WriteLine(string.Join(",", input.Select(x => x.ToString()).ToArray()));
             System.Diagnostics.Debug.WriteLine("base:");
@@ -322,7 +303,7 @@ namespace CrossLogicSolver
             throw new NotImplementedException();
         }
 
-        #region Adjacent
+#region Adjacent
         public bool IsInBound(Point p)
         {
             return IsInBound(p.x, p.y);
